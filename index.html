@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RFA Trip Pulau Seribu — Island, Made Easy</title>
+<meta name="description" content="RFA Trip Pulau Seribu — private trip ke Kepulauan Seribu yang mudah, menyenangkan, dan penuh kenangan.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Alex+Brush&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="assets/images/logo-gradient.png">
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<header class="navbar" id="navbar">
+  <div class="container navbar__inner">
+    <a href="#home" class="brand">
+      <img src="assets/images/logo-gradient.png" alt="Logo RFA" class="brand__mark">
+      <span class="brand__text">
+        <strong>RFA TRIP PULAU SERIBU</strong>
+        <small>Island, made easy</small>
+      </span>
+    </a>
+
+    <nav class="navlinks" id="navlinks" aria-label="Navigasi utama">
+      <a href="#home" class="navlink">Home</a>
+
+      <div class="nav-dropdown" id="destDropdown">
+        <button type="button" class="navlink navlink--dropdown" id="destToggle">
+          Destination
+          <svg class="navlink__chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="nav-dropdown__panel" id="destPanel">
+          <a href="#destination" data-island="tidung">Pulau Tidung</a>
+          <a href="#destination" data-island="pramuka">Pulau Pramuka</a>
+          <a href="#destination" data-island="pari">Pulau Pari</a>
+          <a href="#destination" data-island="harapan">Pulau Harapan</a>
+        </div>
+      </div>
+
+      <a href="#gallery" class="navlink">Galeri</a>
+      <a href="#private-trip" class="navlink">About Us</a>
+    </nav>
+
+    <div class="navbar__actions">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="text" placeholder="Search for a place or destination...">
+      </div>
+
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Ganti tampilan gelap/terang">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      </button>
+
+      <a href= "https://wa.me/62895611885737" class="btn btn--dark navbar__book">Book now</a>
+
+      <button class="hamburger" id="hamburger" type="button" aria-label="Buka menu" aria-controls="navlinks" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="home">
+  <div class="hero__media">
+    <img src="assets/images/home-01.png" alt="Liburan di Kepulauan Seribu" id="heroImage">
+    <div class="hero__scrim"></div>
+  </div>
+
+  <div class="container hero__content">
+    <p class="eyebrow eyebrow--light">Trip Pulau Seribu</p>
+    <h1>See the beauty<br>in a beautiful ways</h1>
+    <p class="hero__desc">Setiap pulau punya keindahan dan ceritanya sendiri.<br>
+      Bersama RFA, nikmati perjalanan privat yang lebih mudah, menyenangkan, dan penuh kenangan.</p>
+
+    <div class="hero__cta">
+      <a href="#private-trip" class="btn btn--light">Plan your trip</a>
+      <a href="#destination" class="btn btn--ghost">Explore Destination</a>
+    </div>
+  </div>
+
+  <div class="hero__dots" id="heroDots" aria-label="Pilih foto utama">
+    <button class="is-active" type="button" aria-label="Foto 1" aria-current="true"></button>
+    <button type="button" aria-label="Foto 2"></button>
+    <button type="button" aria-label="Foto 3"></button>
+    <button type="button" aria-label="Foto 4"></button>
+  </div>
+</section>
+
+<!-- ============ MISSION ============ -->
+<section class="mission container">
+  <div class="mission__collage">
+    <img src="assets/images/gallery-19.jpg" alt="Snorkeling di Kepulauan Seribu" class="collage collage--a">
+    <img src="assets/images/gallery-04.jpg" alt="Kayak di Kepulauan Seribu" class="collage collage--b">
+    <img src="assets/images/gallery-26.jpg" alt="Perjalanan perahu di laut Kepulauan Seribu" class="collage collage--c">
+  </div>
+
+  <div class="mission__text">
+    <p class="eyebrow">Our Mission</p>
+    <h2>Lebih dari Sekadar <em>Liburan,</em><br>Ini Tentang <em>Kenangan</em></h2>
+    <p class="mission__desc">Kami menghubungkan Anda dengan keindahan Kepulauan Seribu secara mendalam.
+      Setiap perjalanan dirancang privat untuk Anda, keluarga, atau rombongan sendiri —
+      memadukan pesona alam pesisir yang asri, keseruan aktivitas bahari, dan momen-momen eksplorasi yang tak terlupakan.</p>
+
+    <ul class="feature-grid">
+      <li><span class="feature-ico"><img src="assets/images/icon-guide.png" alt=""></span>Guide Berpengalaman</li>
+      <li><span class="feature-ico"><img src="assets/images/icon-spot.png" alt=""></span>Spot Destinasi Terbaik</li>
+      <li><span class="feature-ico"><img src="assets/images/icon-harga.png" alt=""></span>Harga Terjangkau</li>
+      <li><span class="feature-ico"><img src="assets/images/icon-snorkeling.png" alt=""></span>Spot Snorkeling Terbaik</li>
+      <li><span class="feature-ico"><img src="assets/images/icon-dokumentasi.png" alt=""></span>Dokumentasi Foto &amp; Video</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ DESTINATION ============ -->
+<section class="destination" id="destination">
+  <div class="container">
+    <p class="eyebrow">Our Destination</p>
+    <h2>Perjalanan Indah Dimulai dari Sini</h2>
+    <p class="section-desc">Keindahan Kepulauan Seribu di Ujung Jari Anda</p>
+
+    <div class="dest-grid">
+      <a href="#" class="dest-card dest-card--tidung">
+        <img src="assets/images/gallery-16.jpg" alt="Pulau Tidung & Jembatan Cinta">
+        <span class="dest-card__label">Pulau Tidung &amp; <br>Jembatan Cinta <i>→</i></span>
+      </a>
+      <a href="#" class="dest-card dest-card--pari">
+        <img src="assets/images/gallery-06.jpg" alt="Pulau Pari & Pasir Perawan">
+        <span class="dest-card__label">Pulau Pari &amp; <br>Pasir Perawan <i>→</i></span>
+      </a>
+      <a href="#" class="dest-card dest-card--pramuka">
+        <img src="assets/images/gallery-09.jpg" alt="Pulau Pramuka & Konservasi Penyu">
+        <span class="dest-card__label">Pulau Pramuka &amp; <br>Konservasi Penyu <i>→</i></span>
+      </a>
+      <a href="#" class="dest-card dest-card--harapan">
+        <img src="assets/images/gallery-10.jpg" alt="Pulau Harapan Island Hopping">
+        <span class="dest-card__label">Pulau Harapan <br>Island Hopping <i>→</i></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GALLERY ============ -->
+<section class="gallery" id="gallery">
+  <div class="container gallery__head">
+    <p class="eyebrow">Galeri</p>
+    <h2>Setiap Perjalanan Punya Cerita</h2>
+    <p class="section-desc">Dari tawa bersama teman, keindahan laut, hingga momen menikmati senja.<br>
+      Inilah potongan cerita dan kenangan yang tercipta dalam setiap perjalanan bersama RFA.</p>
+  </div>
+
+  <div class="gallery-row" aria-label="Galeri foto potret">
+    <div class="gallery-strip container">
+      <button class="gallery-control" type="button" data-gallery-prev="portrait" aria-label="Geser foto potret ke kiri">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m15 18-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="marquee marquee--portrait" id="portraitGallery" aria-label="Galeri foto potret"></div>
+      <button class="gallery-control" type="button" data-gallery-next="portrait" aria-label="Geser foto potret ke kanan">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="gallery-row" aria-label="Galeri foto lanskap">
+    <div class="gallery-strip container">
+      <button class="gallery-control" type="button" data-gallery-prev="landscape" aria-label="Geser foto lanskap ke kiri">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m15 18-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="marquee marquee--landscape" id="landscapeGallery" aria-label="Galeri foto lanskap"></div>
+      <button class="gallery-control" type="button" data-gallery-next="landscape" aria-label="Geser foto lanskap ke kanan">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRIVATE TRIP ============ -->
+<section class="private-trip" id="private-trip">
+  <div class="container private-trip__inner">
+    <p class="eyebrow">SEBELUM BERANGKAT</p>
+    <h2>Ada yang ingin<br>kamu tanyakan?</h2>
+    <p class="private-trip__desc">Beberapa hal penting untuk membantu kamu menyiapkan perjalanan dengan lebih nyaman.</p>
+
+    <div class="faq-list">
+      <details class="faq-item" open>
+        <summary class="faq-item__question">Apa itu Private Trip?</summary>
+        <div class="faq-item__answer">
+          <p>Private trip adalah perjalanan khusus untuk rombonganmu sendiri, tanpa digabung dengan peserta lain. Hubungi kami untuk menyesuaikan rencana perjalanan:</p>
+          <div class="contact-row" aria-label="Kontak WhatsApp untuk Private Trip">
+            <a href="https://wa.me/62895611885737" target="_blank" rel="noopener" class="contact-card">
+              <span class="contact-card__info"><strong>Fajar</strong><span>0895-6118-85737</span></span>
+            </a>
+            <a href="https://wa.me/6281312346748" target="_blank" rel="noopener" class="contact-card">
+              <span class="contact-card__info"><strong>Dian</strong><span>0813-1234-6748</span></span>
+            </a>
+          </div>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-item__question">Apa saja yang termasuk dalam harga paket?</summary>
+        <div class="faq-item__answer">
+          <p>Fasilitas mengikuti paket dan destinasi yang dipilih. Hubungi tim RFA untuk memastikan rincian fasilitas sebelum memesan.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-item__question">Bagaimana cara memilih tanggal keberangkatan?</summary>
+        <div class="faq-item__answer">
+          <p>Tanggal keberangkatan dapat didiskusikan bersama tim RFA sesuai rencana perjalanan dan ketersediaan jadwal.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-item__question">Apakah harga bisa berubah?</summary>
+        <div class="faq-item__answer">
+          <p>Harga dapat menyesuaikan pilihan paket dan kebutuhan perjalanan. Konfirmasikan harga terbaru kepada tim RFA sebelum melakukan pemesanan.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA BANNER ============ -->
+<section class="cta-banner container">
+  <img src="assets/images/gallery-11.jpg" alt="" class="cta-banner__bg">
+  <div class="cta-banner__overlay"></div>
+  <div class="cta-banner__content">
+    <p class="eyebrow eyebrow--light"><span class="dash"></span> Your Next Escape</p>
+    <h2>Akhir pekanmu<br>bisa sebiru ini.</h2>
+    <p>Pilih pulau, tentukan tanggal, dan mulai rencanakan petualanganmu<br>berikutnya di Kepulauan Seribu.</p>
+  </div>
+  <a href= "https://wa.me/62895611885737" class="btn btn--light cta-banner__btn">Book Your Trip <i>↗</i></a>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="container footer__grid">
+    <div class="footer__brand">
+      <img src="assets/images/logo-gradient.png" alt="Logo RFA" class="footer__logo">
+      <div>
+        <strong>RFA TRIP PULAU SERIBU</strong>
+        <small>Islands, made easy</small>
+      </div>
+      <p>Teman perjalanan untuk menikmati sisi lain Jakarta — lebih dekat dengan laut, alam, dan cerita baru.</p>
+    </div>
+
+    <div class="footer__col">
+      <h4>Jelajahi</h4>
+      <a href="#private-trip">Paket Trip</a>
+      <a href="#mission">Kenapa RFA</a>
+      <a href="#gallery">Galeri Momen</a>
+      <a href="#private-trip">Booking</a>
+    </div>
+
+    <div class="footer__col">
+      <h4>Destinasi</h4>
+      <a href="#destination">Pulau Tidung</a>
+      <a href="#destination">Pulau Pari</a>
+      <a href="#destination">Pulau Pramuka</a>
+      <a href="#destination">Pulau Harapan</a>
+    </div>
+
+    <div class="footer__col">
+      <h4>Catatan Trip</h4>
+      <p>Harga mulai dari sesuai informasi paket.</p>
+      <p>Jadwal &amp; fasilitas harus dikonfirmasi sebelum pembayaran.</p>
+      <a href="#private-trip">Baca FAQ ↗</a>
+    </div>
+  </div>
+
+  <div class="footer__bottom container">
+    <span>© RFA Pulau Seribu</span>
+    <a href="#home">Kembali ke atas ↑</a>
+  </div>
+</footer>
+
+<script src="js/theme.js"></script>
+<script src="js/gallery.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>
