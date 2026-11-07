@@ -277,6 +277,7 @@ img{ display:block; max-width:100%; }
   width:100%;
   aspect-ratio:1.1 / 1;
   isolation:isolate;
+  perspective:1000px;
 }
 .collage{
   position:absolute;
@@ -291,6 +292,20 @@ img{ display:block; max-width:100%; }
   mask-position:center;
   -webkit-mask-size:100% 100%;
   mask-size:100% 100%;
+  --drag-rotate-x:0deg;
+  --drag-rotate-y:0deg;
+  transform:perspective(1000px) rotateX(var(--drag-rotate-x)) rotateY(var(--drag-rotate-y));
+  transform-style:preserve-3d;
+  transition:transform .4s cubic-bezier(.2,.7,.25,1), filter .4s ease;
+  touch-action:none;
+  cursor:grab;
+}
+.collage:active{ cursor:grabbing; }
+.collage:focus-visible{ outline:2px solid var(--brand); outline-offset:4px; }
+.collage.is-dragging{
+  z-index:3;
+  transition:none;
+  transform:perspective(1000px) rotateX(var(--drag-rotate-x)) rotateY(var(--drag-rotate-y));
 }
 /* Collage A — bentuk Collage B yang diputar ke kanan */
 .collage--a{
@@ -300,6 +315,11 @@ img{ display:block; max-width:100%; }
   -webkit-mask-image: var(--collage-a-mask);
   mask-image: var(--collage-a-mask);
 }
+.collage--a:hover{
+  z-index:2;
+  transform:perspective(1000px) rotateX(calc(var(--drag-rotate-x) + 3deg)) rotateY(calc(var(--drag-rotate-y) - 5deg)) translateZ(14px) scale(1.025);
+  filter:drop-shadow(0 14px 18px rgba(20,54,75,.22));
+}
 /* Collage B — sisi atas sedikit menurun dari kiri ke kanan */
 .collage--b{
   width:40%; height:46%; right:5%; top:3%;
@@ -307,12 +327,27 @@ img{ display:block; max-width:100%; }
   -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M16%204%20C8%204%203%2010%203%2020%20L3%2076%20C3%2088%2010%2096%2022%2096%20L78%2096%20C90%2096%2098%2089%2098%2077%20L98%2031%20C98%2021%2092%2015%2082%2013%20L22%205%20C20%204%2018%204%2016%204%20Z%22%2F%3E%3C%2Fsvg%3E");
   mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M16%204%20C8%204%203%2010%203%2020%20L3%2076%20C3%2088%2010%2096%2022%2096%20L78%2096%20C90%2096%2098%2089%2098%2077%20L98%2031%20C98%2021%2092%2015%2082%2013%20L22%205%20C20%204%2018%204%2016%204%20Z%22%2F%3E%3C%2Fsvg%3E");
 }
+.collage--b:hover{
+  z-index:2;
+  transform:perspective(1000px) rotateX(calc(var(--drag-rotate-x) + 3deg)) rotateY(calc(var(--drag-rotate-y) + 5deg)) translateZ(14px) scale(1.025);
+  filter:drop-shadow(0 14px 18px rgba(20,54,75,.22));
+}
 /* Collage C — trapesium dengan sisi kiri yang lebih halus */
 .collage--c{
   width:88%; height:48%; left:7%; bottom:0;
   object-fit:cover;
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M12%2020%20C6%2022%203%2029%204%2039%20L7%2076%20C8%2088%2015%2094%2026%2095%20L80%2097%20C92%2098%2098%2091%2098%2078%20L93%2017%20C92%208%2087%204%2079%205%20C56%2010%2034%2016%2012%2020%20Z%22%2F%3E%3C%2Fsvg%3E");
   mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M12%2020%20C6%2022%203%2029%204%2039%20L7%2076%20C8%2088%2015%2094%2026%2095%20L80%2097%20C92%2098%2098%2091%2098%2078%20L93%2017%20C92%208%2087%204%2079%205%20C56%2010%2034%2016%2012%2020%20Z%22%2F%3E%3C%2Fsvg%3E");
+}
+.collage--c:hover{
+  z-index:2;
+  transform:perspective(1000px) rotateX(calc(var(--drag-rotate-x) - 4deg)) rotateY(calc(var(--drag-rotate-y) - 2deg)) translateZ(14px) scale(1.025);
+  filter:drop-shadow(0 14px 18px rgba(20,54,75,.22));
+}
+.collage.is-dragging{
+  z-index:3;
+  transition:none;
+  transform:perspective(1000px) rotateX(var(--drag-rotate-x)) rotateY(var(--drag-rotate-y));
 }
 .mission__desc{ color: var(--text-muted); font-size: 15.5px; line-height:1.7; margin-top: 4px; max-width: 480px; }
 
@@ -328,12 +363,18 @@ img{ display:block; max-width:100%; }
   border-radius: 14px;
   font-size: 13.5px; font-weight:600;
   background: var(--bg-card);
+  box-shadow: 0 6px 16px rgba(45,67,76,.08);
+}
+.feature-grid li:last-child{
+  grid-column:1 / -1;
+  justify-self:center;
 }
 .feature-ico{
   width: 34px; height:34px; border-radius: 10px;
   background: var(--brand);
   display:flex; align-items:center; justify-content:center;
   flex-shrink:0;
+  box-shadow: 0 4px 10px rgba(20,145,221,.25);
 }
 .feature-ico img{ width: 18px; height:18px; object-fit:contain; filter: brightness(0) invert(1); }
 
@@ -433,7 +474,14 @@ img{ display:block; max-width:100%; }
 }
 
 @media (prefers-reduced-motion: reduce){
-  .hero__media img{ transition:none; }
+  .hero__media img,
+  .collage{ transition:none; }
+  .collage--a:hover,
+  .collage--b:hover,
+  .collage--c:hover{ transform:none; filter:none; }
+  .collage.is-dragging{
+    transform:perspective(1000px) rotateX(var(--drag-rotate-x)) rotateY(var(--drag-rotate-y));
+  }
 }
 
 /* =========================================================
@@ -585,7 +633,10 @@ img{ display:block; max-width:100%; }
 .footer__col h4{ font-size:13px; margin:0 0 16px; color: rgba(255,255,255,.55); font-weight:600; }
 .footer__col{ display:flex; flex-direction:column; gap:10px; font-size:14px; }
 .footer__col a{ color: rgba(255,255,255,.85); }
-.footer__col a:hover{ opacity:.8; }
+.footer a:hover,
+.footer a:focus-visible{ color:var(--brand); }
+.footer__col a:hover,
+.footer__col a:focus-visible{ opacity:1; }
 .footer__col p{ color: rgba(255,255,255,.6); font-size:13px; line-height:1.5; }
 
 .footer__bottom{
