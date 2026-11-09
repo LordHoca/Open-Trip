@@ -1,270 +1,307 @@
 /* ===========================================================
-   gallery.js — galeri potret dan lanskap dengan gerak otomatis.
+   gallery.js — Dual 360° Orbit Curve (High-DPI Crisp Rendering)
    =========================================================== */
 (function () {
   const TOTAL_PHOTOS = 27;
-  const AUTO_SPEED = 40;
-  const SCROLL_DURATION = 700;
-  const photos = Array.from(
-    { length: TOTAL_PHOTOS },
-    (_, index) => `assets/images/gallery-${String(index + 1).padStart(2, "0")}.jpg`
-  );
 
-  function getOrientation(src) {
-    return new Promise((resolve, reject) => {
+  const photoSources = [
+    ...Array.from(
+      { length: TOTAL_PHOTOS },
+      (_, index) => `assets/images/gallery-${String(index + 1).padStart(2, "0")}.jpg`
+    ),
+    "assets/images/footer image.jpg"
+  ];
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const lerp = (start, end, amt) => (1 - amt) * start + amt * end;
+
+  let allLoadedPhotos = [];
+  let activeLightboxIndex = 0;
+
+  function getOrientation(src, index) {
+    return new Promise((resolve) => {
       const image = new Image();
-      image.onload = () => resolve({
-        src,
-        orientation: image.naturalHeight > image.naturalWidth ? "portrait" : "landscape"
-      });
-      image.onerror = () => reject(new Error(`Gagal memuat foto galeri: ${src}`));
+      image.onload = () =>
+        resolve({
+          src,
+          index,
+          title: `Momen Perjalanan RFA #${index + 1}`,
+          orientation: image.naturalHeight > image.naturalWidth ? "portrait" : "landscape"
+        });
+      image.onerror = () => resolve(null);
       image.src = src;
     });
   }
 
-  function setupGallery(orientation, images) {
-    const wrapper = document.getElementById(`${orientation}Gallery`);
-    if (!wrapper || !images.length) return;
+  function setupOrbitCurve(orientation, photos) {
+    const stage = document.getElementById(`${orientation}Gallery`);
+    const ring = document.getElementById(`${orientation}OrbitRing`);
+    if (!stage || !ring || !photos.length) return;
 
-    const createImage = ({ src }, index, isClone = false) => {
-      const image = document.createElement("img");
-      image.src = src;
-      image.alt = isClone ? "" : `Momen perjalanan RFA ${index + 1}`;
-      image.loading = "lazy";
-      image.draggable = false;
-      if (isClone) image.setAttribute("aria-hidden", "true");
-      return image;
-    };
-
-    const beforeClones = images.map((photo, index) => createImage(photo, index, true));
-    const originalImages = images.map((photo, index) => createImage(photo, index));
-    const afterClones = images.map((photo, index) => createImage(photo, index, true));
-    wrapper.replaceChildren(...beforeClones, ...originalImages, ...afterClones);
-
-    const firstOriginalIndex = images.length;
-    const returnIndex = images.length * 2;
-    const autoDirection = orientation === "landscape" ? -1 : 1;
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let activeIndex = firstOriginalIndex;
-    let autoFrame;
-    let autoPreviousTime;
-    let autoPosition;
-    let resumeTimer;
-    let pointerId;
-    let pointerStartX;
-    let pointerStartScroll;
-    let pointerMoved = false;
-    let isMoving = false;
-    let autoEnabled = !prefersReducedMotion;
-
-    function scrollPositionFor(image) {
-      return image.offsetLeft;
+    const MIN_CARDS = 12;
+    const MAX_CARDS = 16;
+    let deck = [...photos];
+    while (deck.length < MIN_CARDS) {
+      deck = deck.concat(photos);
+    }
+    if (deck.length > MAX_CARDS) {
+      deck = deck.slice(0, MAX_CARDS);
     }
 
-    function normalizeIndex(index) {
-      if (index < firstOriginalIndex) return index + images.length;
-      if (index >= returnIndex) return index - images.length;
-      return index;
+    const count = deck.length;
+    const angleStep = 360 / count;
+
+    ring.replaceChildren();
+    const cards = deck.map((photo, idx) => {
+      const card = document.createElement("div");
+      card.className = "orbit-card";
+      card.dataset.photoIndex = String(photo.index);
+
+      const img = document.createElement("img");
+      img.src = photo.src;
+      img.alt = `${photo.title} (${idx + 1})`;
+      img.loading = "eager";
+      img.decoding = "sync";
+      img.draggable = false;
+
+      card.appendChild(img);
+      ring.appendChild(card);
+
+      return {
+        el: card,
+        baseAngle: idx * angleStep
+      };
+    });
+
+    const autoDir = orientation === "landscape" ? 1 : -1;
+    const autoSpeed = prefersReducedMotion ? 0 : 0.14 * autoDir;
+
+    let targetRotY = 0;
+    let currentRotY = 0;
+    let radius = 360;
+
+    let isDragging = false;
+    let isHovered = false;
+    let pointerId = null;
+    let startX = 0;
+    let startY = 0;
+    let dragStartRotY = 0;
+    let pointerAxis = null;
+    let movedDistance = 0;
+
+    function computeSafeRadius() {
+      const cardWidth = ring.offsetWidth || (orientation === "portrait" ? 150 : 195);
+      const vw = window.innerWidth;
+      const gap = vw <= 519 ? 18 : vw <= 900 ? 24 : 30;
+
+      const polygonRadius = (cardWidth + gap) / (2 * Math.sin(Math.PI / count));
+      const minRadius = vw <= 519 ? 225 : 340;
+      radius = Math.max(polygonRadius, minRadius);
     }
 
-    function updateCylinderCards() {
-      const center = wrapper.clientWidth / 2;
-      const radius = Math.max(center, 1);
-      Array.from(wrapper.children).forEach((image) => {
-        const imageCenter = image.offsetLeft - wrapper.scrollLeft + image.offsetWidth / 2;
-        const position = Math.max(-1, Math.min(1, (imageCenter - center) / radius));
-        const distanceFromCenter = Math.abs(position);
-        const angle = position * 76;
-        const depth = (Math.cos(distanceFromCenter * Math.PI / 2) - 1) * 100;
-        const scale = 1 - distanceFromCenter * 0.18;
-        const opacity = 1 - distanceFromCenter * 0.55;
-        image.style.setProperty("--cylinder-angle", `${angle}deg`);
-        image.style.setProperty("--cylinder-depth", `${depth}px`);
-        image.style.setProperty("--cylinder-scale", scale.toFixed(3));
-        image.style.setProperty("--cylinder-opacity", opacity.toFixed(3));
-      });
-    }
-
-    function normalizeScrollPosition() {
-      const originalPosition = scrollPositionFor(wrapper.children[firstOriginalIndex]);
-      const returnPosition = scrollPositionFor(wrapper.children[returnIndex]);
-      const cycleLength = returnPosition - originalPosition;
-      if (cycleLength <= 0) return;
-
-      if (wrapper.scrollLeft < originalPosition || wrapper.scrollLeft >= returnPosition) {
-        const offset = ((wrapper.scrollLeft - originalPosition) % cycleLength + cycleLength) % cycleLength;
-        wrapper.classList.add("is-resetting");
-        wrapper.scrollLeft = originalPosition + offset;
-        wrapper.classList.remove("is-resetting");
-        autoPosition = wrapper.scrollLeft;
+    function renderOrbit() {
+      if (!isDragging && !isHovered && !document.hidden) {
+        targetRotY += autoSpeed;
       }
-    }
 
-    function stopAutoMotion() {
-      if (autoFrame) cancelAnimationFrame(autoFrame);
-      autoFrame = undefined;
-      autoPreviousTime = undefined;
-      isMoving = false;
-    }
+      currentRotY = lerp(currentRotY, targetRotY, 0.08);
 
-    function finishMove(targetIndex) {
-      activeIndex = normalizeIndex(targetIndex);
-      if (activeIndex !== targetIndex) {
-        wrapper.classList.add("is-resetting");
-        wrapper.scrollLeft = scrollPositionFor(wrapper.children[activeIndex]);
-        wrapper.classList.remove("is-resetting");
-      }
-      updateCylinderCards();
-      isMoving = false;
-    }
+      cards.forEach(({ el, baseAngle }) => {
+        const netAngleDeg = (((baseAngle + currentRotY) % 360) + 540) % 360 - 180;
+        const rad = (netAngleDeg * Math.PI) / 180;
+        const cosAngle = Math.cos(rad);
+        const sinAngle = Math.sin(rad);
 
-    function animateAutoMotion(timestamp) {
-      if (document.hidden) {
-        autoPreviousTime = undefined;
-        autoFrame = requestAnimationFrame(animateAutoMotion);
-        return;
-      }
-      if (autoPreviousTime === undefined) autoPreviousTime = timestamp;
-      const elapsed = timestamp - autoPreviousTime;
-      autoPreviousTime = timestamp;
-      autoPosition += autoDirection * AUTO_SPEED * elapsed / 1000;
+        if (cosAngle <= 0.08) {
+          el.style.opacity = "0";
+          el.style.visibility = "hidden";
+          el.style.pointerEvents = "none";
+        } else {
+          // Pembulatan koordinat X dan Z mencegah blur sub-piksel pada layar HP
+          const x = Math.round(sinAngle * radius);
+          const z = Math.round((cosAngle - 1) * radius);
+          const opacity = Math.min(1, Math.pow((cosAngle - 0.08) / 0.92, 1.1));
 
-      const originalPosition = scrollPositionFor(wrapper.children[firstOriginalIndex]);
-      const returnPosition = scrollPositionFor(wrapper.children[returnIndex]);
-      const cloneBoundary = scrollPositionFor(
-        wrapper.children[autoDirection > 0 ? returnIndex : 0]
-      );
-      const crossedBoundary = autoDirection > 0
-        ? autoPosition >= cloneBoundary
-        : autoPosition <= cloneBoundary;
-      if (crossedBoundary) {
-        autoPosition -= autoDirection * (returnPosition - originalPosition);
-        wrapper.classList.add("is-resetting");
-        wrapper.scrollLeft = autoPosition;
-        wrapper.classList.remove("is-resetting");
-      } else {
-        wrapper.scrollLeft = autoPosition;
-      }
-      updateCylinderCards();
-      autoFrame = requestAnimationFrame(animateAutoMotion);
-    }
-
-    function startAutoMotion() {
-      if (!autoEnabled || autoFrame) return;
-      autoPosition = wrapper.scrollLeft;
-      isMoving = true;
-      autoFrame = requestAnimationFrame(animateAutoMotion);
-    }
-
-    function nearestImageIndex() {
-      let closestIndex = 0;
-      let closestDistance = Infinity;
-
-      Array.from(wrapper.children).forEach((image, index) => {
-        const distance = Math.abs(image.offsetLeft - wrapper.scrollLeft);
-        if (distance < closestDistance) {
-          closestIndex = index;
-          closestDistance = distance;
+          el.style.transform = `translate3d(${x}px, 0px, ${z}px) rotateY(${netAngleDeg.toFixed(1)}deg)`;
+          el.style.opacity = opacity.toFixed(2);
+          el.style.visibility = "visible";
+          el.style.pointerEvents = cosAngle > 0.4 ? "auto" : "none";
+          el.style.zIndex = String(Math.round(cosAngle * 100));
         }
       });
-      return closestIndex;
+
+      requestAnimationFrame(renderOrbit);
     }
 
-    function scheduleAutoResume() {
-      if (pointerId !== undefined) return;
-      clearTimeout(resumeTimer);
-      resumeTimer = setTimeout(() => {
-        finishMove(nearestImageIndex());
-        startAutoMotion();
-      }, SCROLL_DURATION);
+    stage.addEventListener("pointerenter", (e) => {
+      if (e.pointerType === "mouse") isHovered = true;
+    });
+    stage.addEventListener("pointerleave", () => {
+      isHovered = false;
+    });
+
+    stage.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      isDragging = true;
+      pointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      dragStartRotY = targetRotY;
+      pointerAxis = null;
+      movedDistance = 0;
+
+      if (e.pointerType === "mouse") {
+        e.preventDefault();
+        stage.setPointerCapture(e.pointerId);
+      }
+    });
+
+    stage.addEventListener("pointermove", (e) => {
+      if (!isDragging || e.pointerId !== pointerId) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      if (!pointerAxis && Math.hypot(dx, dy) > 6) {
+        pointerAxis = Math.abs(dx) >= Math.abs(dy) ? "horizontal" : "vertical";
+        if (pointerAxis === "horizontal" && e.pointerType !== "mouse") {
+          stage.setPointerCapture(e.pointerId);
+        }
+      }
+
+      if (pointerAxis === "horizontal" || e.pointerType === "mouse") {
+        movedDistance = Math.hypot(dx, dy);
+        const degPerPx = (180 / Math.PI) / Math.max(radius * 0.85, 180);
+        targetRotY = dragStartRotY + dx * degPerPx;
+      }
+    });
+
+    function finishPointer(e) {
+      if (!isDragging || e.pointerId !== pointerId) return;
+      isDragging = false;
+      pointerId = null;
+      pointerAxis = null;
+
+      if (movedDistance < 8) {
+        const tappedCard = document
+          .elementFromPoint(e.clientX, e.clientY)
+          ?.closest(".orbit-card");
+        if (tappedCard && tappedCard.dataset.photoIndex !== undefined) {
+          openLightbox(Number(tappedCard.dataset.photoIndex));
+        }
+      }
     }
 
-    wrapper.classList.add("is-resetting");
-    wrapper.scrollLeft = scrollPositionFor(originalImages[0]);
-    wrapper.classList.remove("is-resetting");
-    updateCylinderCards();
+    stage.addEventListener("pointerup", finishPointer);
+    stage.addEventListener("pointercancel", finishPointer);
 
-    wrapper.addEventListener("pointerdown", (event) => {
-      if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
-      pointerId = event.pointerId;
-      pointerStartX = event.clientX;
-      pointerStartScroll = wrapper.scrollLeft;
-      pointerMoved = false;
-      clearTimeout(resumeTimer);
-      stopAutoMotion();
-      if (event.pointerType === "mouse") {
-        event.preventDefault();
-        wrapper.setPointerCapture(event.pointerId);
-      }
-    });
+    stage.addEventListener(
+      "wheel",
+      (e) => {
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+          e.preventDefault();
+          targetRotY -= e.deltaX * 0.16;
+        }
+      },
+      { passive: false }
+    );
 
-    wrapper.addEventListener("pointermove", (event) => {
-      if (event.pointerId !== pointerId || event.pointerType === "touch") return;
-      if (Math.abs(event.clientX - pointerStartX) > 4) {
-        pointerMoved = true;
-        event.preventDefault();
-        wrapper.scrollLeft = pointerStartScroll - (event.clientX - pointerStartX);
-      }
-    });
-
-    function endPointer(event) {
-      if (event.pointerId !== pointerId) return;
-      pointerId = undefined;
-      if (pointerMoved) event.preventDefault();
-      scheduleAutoResume();
-    }
-
-    wrapper.addEventListener("pointerup", endPointer);
-    wrapper.addEventListener("pointercancel", endPointer);
-    wrapper.addEventListener("scroll", () => {
-      if (!isMoving) normalizeScrollPosition();
-      updateCylinderCards();
-      if (isMoving) return;
-      scheduleAutoResume();
-    });
-    wrapper.addEventListener("wheel", (event) => {
-      if (Math.abs(event.deltaX) > 0) {
-        clearTimeout(resumeTimer);
-        stopAutoMotion();
-        scheduleAutoResume();
-      }
-    });
-
-    window.addEventListener("resize", () => {
-      const shouldResumeAutoMotion = autoEnabled;
-      stopAutoMotion();
-      clearTimeout(resumeTimer);
-      wrapper.classList.add("is-resetting");
-      wrapper.scrollLeft = scrollPositionFor(wrapper.children[activeIndex]);
-      wrapper.classList.remove("is-resetting");
-      updateCylinderCards();
-      isMoving = false;
-      if (shouldResumeAutoMotion) startAutoMotion();
-    });
-
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        if (autoFrame) cancelAnimationFrame(autoFrame);
-        autoFrame = undefined;
-        autoPreviousTime = undefined;
-      } else if (isMoving && autoEnabled) {
-        autoFrame = requestAnimationFrame(animateAutoMotion);
-      }
-    });
-
-    startAutoMotion();
+    window.addEventListener("resize", computeSafeRadius);
+    computeSafeRadius();
+    requestAnimationFrame(renderOrbit);
   }
 
-  Promise.all(
-    photos.map((src) =>
-      getOrientation(src).catch((error) => {
-        console.error(error);
-        return null;
-      })
-    )
-  ).then((loadedPhotos) => {
-    const availablePhotos = loadedPhotos.filter(Boolean);
-    setupGallery("portrait", availablePhotos.filter((photo) => photo.orientation === "portrait"));
-    setupGallery("landscape", availablePhotos.filter((photo) => photo.orientation === "landscape"));
+  // Lightbox (Resolusi Native 100% Tajam, Geser Kiri/Kanan untuk Ganti Foto)
+  const lightbox = document.getElementById("lightbox3D");
+  const lightboxCard = document.getElementById("lightboxCard");
+  const lightboxImage = document.getElementById("lightboxImage");
+  const lightboxCaption = document.getElementById("lightboxCaption");
+  const lightboxBackdrop = document.getElementById("lightboxBackdrop");
+
+  function renderLightboxPhoto() {
+    if (!allLoadedPhotos.length || !lightboxImage) return;
+    const item = allLoadedPhotos[activeLightboxIndex];
+    lightboxImage.src = item.src;
+    lightboxImage.alt = item.title;
+    if (lightboxCaption) {
+      lightboxCaption.textContent = `${item.title} • Geser untuk foto lainnya`;
+    }
+  }
+
+  function openLightbox(photoIndex) {
+    if (!lightbox || !allLoadedPhotos.length) return;
+    const idx = allLoadedPhotos.findIndex((p) => p.index === photoIndex);
+    activeLightboxIndex = idx >= 0 ? idx : 0;
+    renderLightboxPhoto();
+    if (lightboxCard) lightboxCard.style.transform = "none";
+    lightbox.classList.add("is-open");
+    lightbox.setAttribute("aria-hidden", "false");
+  }
+
+  function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.classList.remove("is-open");
+    lightbox.setAttribute("aria-hidden", "true");
+    if (lightboxCard) lightboxCard.style.transform = "none";
+  }
+
+  function stepLightbox(dir) {
+    if (!allLoadedPhotos.length) return;
+    activeLightboxIndex =
+      (activeLightboxIndex + dir + allLoadedPhotos.length) % allLoadedPhotos.length;
+    renderLightboxPhoto();
+  }
+
+  if (lightboxCard) {
+    let lbPointerId = null;
+    let lbStartX = 0;
+    let lbDeltaX = 0;
+
+    lightboxCard.addEventListener("pointerdown", (e) => {
+      lbPointerId = e.pointerId;
+      lbStartX = e.clientX;
+      lbDeltaX = 0;
+      lightboxCard.classList.add("is-dragging");
+      lightboxCard.setPointerCapture(e.pointerId);
+    });
+
+    lightboxCard.addEventListener("pointermove", (e) => {
+      if (lbPointerId !== e.pointerId) return;
+      lbDeltaX = e.clientX - lbStartX;
+      lightboxCard.style.transform = `translateX(${Math.round(lbDeltaX * 0.45)}px)`;
+    });
+
+    function endLightboxSwipe(e) {
+      if (e.pointerId !== lbPointerId) return;
+      lbPointerId = null;
+      lightboxCard.classList.remove("is-dragging");
+      lightboxCard.style.transform = "none"; // Kembali ke transform: none agar 100% tajam
+
+      if (lbDeltaX > 45) {
+        stepLightbox(-1);
+      } else if (lbDeltaX < -45) {
+        stepLightbox(1);
+      }
+    }
+
+    lightboxCard.addEventListener("pointerup", endLightboxSwipe);
+    lightboxCard.addEventListener("pointercancel", endLightboxSwipe);
+  }
+
+  lightboxBackdrop && lightboxBackdrop.addEventListener("click", closeLightbox);
+
+  document.addEventListener("keydown", (e) => {
+    if (!lightbox || !lightbox.classList.contains("is-open")) return;
+    if (e.key === "Escape") closeLightbox();
+    if (e.key === "ArrowLeft") stepLightbox(-1);
+    if (e.key === "ArrowRight") stepLightbox(1);
+  });
+
+  Promise.all(photoSources.map((src, index) => getOrientation(src, index))).then((results) => {
+    allLoadedPhotos = results.filter(Boolean);
+    const portraitPhotos = allLoadedPhotos.filter((p) => p.orientation === "portrait");
+    const landscapePhotos = allLoadedPhotos.filter((p) => p.orientation === "landscape");
+
+    setupOrbitCurve("portrait", portraitPhotos.length ? portraitPhotos : allLoadedPhotos);
+    setupOrbitCurve("landscape", landscapePhotos.length ? landscapePhotos : allLoadedPhotos);
   });
 })();
