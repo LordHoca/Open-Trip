@@ -25,7 +25,7 @@
         resolve({
           src,
           index,
-          title: `Momen Perjalanan RFA #${index + 1}`,
+          title: `Kenangan Bersama RFA #${index + 1}`,
           orientation: image.naturalHeight > image.naturalWidth ? "portrait" : "landscape"
         });
       image.onerror = () => resolve(null);
@@ -74,7 +74,7 @@
     });
 
     const autoDir = orientation === "landscape" ? 1 : -1;
-    const autoSpeed = prefersReducedMotion ? 0 : 0.14 * autoDir;
+    const autoSpeed = prefersReducedMotion ? 0 : 0.08 * autoDir;
 
     let targetRotY = 0;
     let currentRotY = 0;
