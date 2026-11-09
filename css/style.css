@@ -433,63 +433,170 @@ img{ display:block; max-width:100%; }
 .dest-card--harapan{ grid-row: 1 / 3; grid-column: 3 / 4; }
 
 /* =========================================================
-   GALLERY
+   GALLERY — Dual 360° Orbit Curve (100% Native Sharpness)
    ========================================================= */
-.gallery{ padding: 10px 0 72px; overflow:hidden; }
-.gallery__head{ text-align:center; margin-bottom: 44px; }
-.gallery__head .section-desc{ margin-inline:auto; }
-
-.gallery-row{ margin-bottom: 34px; }
-.gallery-strip{
-  display:flex;
-  align-items:center;
+.gallery {
+  padding: 20px 0 96px;
+  overflow-x: hidden;
+  overflow-y: visible;
+  position: relative;
+}
+.gallery__head {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.gallery__head .section-desc {
+  margin-inline: auto;
 }
 
-.marquee{
-  position:relative;
-  display:flex;
-  gap:8px;
-  flex:1;
-  min-width:0;
-  perspective:1100px;
-  transform-style:preserve-3d;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 36px 0 44px;
-  -webkit-overflow-scrolling: touch;
-  touch-action:pan-x pan-y;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  scroll-behavior:auto;
-  cursor:grab;
+.gallery-row {
+  margin-bottom: 36px;
 }
-.marquee:active{ cursor:grabbing; }
-.marquee::-webkit-scrollbar{ display:none; }
-.marquee.is-resetting{ scroll-behavior:auto; }
+.gallery-row:last-of-type {
+  margin-bottom: 0;
+}
 
-.marquee img{
-  height: clamp(220px, 29vw, 280px);
-  width: clamp(155px, 21vw, 205px);
-  object-fit:cover;
-  border:1px solid rgba(255,255,255,.22);
+/* Panggung 3D — perspective-origin tepat di tengah (50% 50%) agar foto depan tidak terdistorsi */
+.orbit-stage {
+  position: relative;
+  width: 100%;
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  padding: 28px 0;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+  outline: none;
+}
+.orbit-stage:active {
+  cursor: grabbing;
+}
+
+.orbit-stage--portrait {
+  height: clamp(280px, 36vw, 370px);
+}
+.orbit-stage--landscape {
+  height: clamp(210px, 27vw, 280px);
+}
+
+/* Cincin Pusat 360° */
+.orbit-ring {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.orbit-stage--portrait .orbit-ring {
+  width: clamp(150px, 20vw, 205px);
+  height: clamp(215px, 28vw, 290px);
+}
+.orbit-stage--landscape .orbit-ring {
+  width: clamp(195px, 26vw, 275px);
+  height: clamp(138px, 18vw, 192px);
+}
+
+/* Kartu Foto — TANPA transform-style: preserve-3d agar tidak bentrok dengan overflow: hidden */
+.orbit-card {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 16px 32px -10px rgba(8, 24, 40, 0.38);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.orbit-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .orbit-card:hover {
+    border-color: var(--brand);
+    box-shadow: 0 22px 42px -8px rgba(20, 145, 221, 0.42);
+  }
+}
+
+/* Lightbox Pratinjau — Tanpa 3D Matrix & Tanpa Backdrop-Filter di dalam kartu agar 100% Tajam */
+.lightbox-3d {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  touch-action: none;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.lightbox-3d.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.lightbox-3d__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 15, 22, 0.88);
+}
+.lightbox-3d__card {
+  position: relative;
+  z-index: 2;
+  max-width: min(92vw, 820px);
+  max-height: 85vh;
   border-radius: 20px;
-  box-shadow: 12px 22px 34px rgba(8,24,40,.3), 3px 0 0 rgba(255,255,255,.16);
-  flex-shrink:0;
-  scroll-snap-align:start;
-  backface-visibility:hidden;
-  transform-style:preserve-3d;
-  transform:rotateY(var(--cylinder-angle, 0deg)) translateZ(var(--cylinder-depth, 0px)) scale(var(--cylinder-scale, 1));
-  opacity:var(--cylinder-opacity, 1);
-  transition:box-shadow .25s ease;
-  user-select:none;
-  -webkit-user-drag:none;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.7);
+  background: #0b1720;
+  cursor: grab;
+  transform: none; /* Kunci utama agar foto & teks di Lightbox 100% tajam */
+  transition: transform 0.25s ease;
 }
-.marquee img:hover{
-  box-shadow:0 24px 36px rgba(8,24,40,.36);
+.lightbox-3d__card.is-dragging {
+  transition: none;
+  cursor: grabbing;
 }
-.marquee--landscape img{
-  width: clamp(195px, 26vw, 270px);
-  height: clamp(140px, 19vw, 190px);
+.lightbox-3d__card img {
+  display: block;
+  max-width: min(92vw, 820px);
+  max-height: 85vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.lightbox-3d__glare {
+  display: none; /* Dinonaktifkan agar GPU tidak menurunkan resolusi gambar ke bitmap 1x */
+}
+.lightbox-3d__caption {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(8, 22, 32, 0.86); /* Tanpa backdrop-filter agar teks & foto tetap tajam */
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -654,8 +761,9 @@ img{ display:block; max-width:100%; }
 .footer__brand strong{ display:block; font-size:13px; }
 .footer__brand small{ color: rgba(255,255,255,.55); font-size:11px; }
 .footer__brand p{ margin-top:14px; color: rgba(255,255,255,.6); font-size:13.5px; line-height:1.6; max-width:280px; }
-.footer__socials{ display:flex; align-items:center; gap:12px; margin-top:16px; }
-.footer__social-icon{ display:inline-flex; width:24px; height:24px; color:rgba(255,255,255,.8); }
+.footer__socials{ display:flex; flex-direction:column; align-items:flex-start; gap:10px; margin-top: 24px; }
+.footer__social-link{ display:inline-flex; align-items:center; gap:10px; color:rgba(255,255,255,.8); font-size:13px; }
+.footer__social-icon{ display:inline-flex; flex:none; width:24px; height:24px; color:rgba(255,255,255,.8); }
 .footer__social-icon svg{ width:100%; height:100%; }
 
 .footer__col h4{ font-size:15px; margin:0 0 16px; color: white ; font-weight:bold; }
@@ -767,10 +875,10 @@ img{ display:block; max-width:100%; }
   .faq-list{ margin-top:34px; }
   .faq-item__question{ min-height:54px; font-size:13px; }
   .faq-item__answer{ padding-right:0; font-size:12px; }
-  .marquee{ gap:6px; padding:28px 0 36px; }
-  .marquee img{ width:clamp(155px, 31vw, 205px); height:clamp(220px, 45vw, 280px); }
-  .marquee--landscape img{ width:clamp(195px, 50vw, 270px); height:clamp(140px, 36vw, 190px); }
-  .contact-row{ gap:8px; }
+  .orbit-stage--portrait { height: clamp(250px, 46vw, 315px); }
+  .orbit-stage--landscape { height: clamp(190px, 35vw, 240px); }
+  .orbit-stage--portrait .orbit-ring { width: clamp(134px, 26vw, 175px); height: clamp(188px, 37vw, 245px); }
+  .orbit-stage--landscape .orbit-ring { width: clamp(174px, 34vw, 230px); height: clamp(124px, 24vw, 165px); }
   .contact-card{ padding:7px 10px; }
   .contact-card__info span{ font-size:11px; }
   .cta-banner{ min-height:260px; margin-bottom:64px; }
@@ -789,9 +897,11 @@ img{ display:block; max-width:100%; }
   .hero__content{ padding-top:36px; }
   .hero__cta{ gap:10px; }
   .hero__cta .btn{ padding:11px 16px; font-size:13px; }
-  .marquee{ padding:24px 0 32px; }
-  .marquee img{ width:min(54vw, 185px); height:min(72vw, 245px); }
-  .marquee--landscape img{ width:min(64vw, 235px); height:min(46vw, 175px); }
+  .orbit-stage--portrait { height: 240px; padding: 18px 0 26px; }
+  .orbit-stage--landscape { height: 180px; padding: 18px 0 26px; }
+  .orbit-stage--portrait .orbit-ring { width: 130px; height: 184px; }
+  .orbit-stage--landscape .orbit-ring { width: 168px; height: 120px; }
+  .orbit-card { border-radius: 16px; }
   .eyebrow{ font-size:11px; }
   .feature-grid li{ padding:10px 12px; }
   .gallery__head h2{ font-size:28px; }
