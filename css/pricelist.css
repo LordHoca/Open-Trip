@@ -141,10 +141,14 @@ body.pl-lock{ overflow:hidden; }
 
 /* ---------- Halaman pulau (opsi 2) ---------- */
 .ip-hero{
-  position:relative; min-height:clamp(300px,46vh,440px);
+  position:relative; min-height:clamp(435px,46vh,800px);
   display:flex; align-items:flex-end; color:#fff; overflow:hidden;
 }
-.ip-hero img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.ip-hero img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  transition:transform .65s ease;
+}
+.ip-hero:hover img{ transform:scale(1.08); }
 .ip-hero::after{
   content:""; position:absolute; inset:0;
   background:linear-gradient(0deg, rgba(5,20,35,.82) 0%, rgba(5,20,35,.25) 60%, rgba(5,20,35,.35) 100%);
@@ -194,6 +198,8 @@ body.pl-lock{ overflow:hidden; }
 }
 @media (prefers-reduced-motion:reduce){
   .pl-modal__dialog, .pl-modal__backdrop{ animation:none; }
+  .ip-hero img{ transition:none; }
+  .ip-hero:hover img{ transform:none; }
 }
 
 /* ---------- Ukuran box tetap (tidak berubah antar paket / pulau) ---------- */
