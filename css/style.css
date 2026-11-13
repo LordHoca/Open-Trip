@@ -781,7 +781,7 @@ img{ display:block; max-width:100%; }
 }
 
 #air{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999}
-  @media (hover:hover) and (pointer:fine){html.no-cursor,html.no-cursor *{cursor:none !important}};
+  @media (hover:hover) and (pointer:fine){html.no-cursor,html.no-cursor *{cursor:none !important}}
 /* =========================================================
    RESPONSIVE
    ========================================================= */
@@ -790,7 +790,7 @@ img{ display:block; max-width:100%; }
   .navlinks{ gap:2px; font-size:13px; }
   .navbar__actions{ gap:8px; }
   .mission{ grid-template-columns:1fr; padding-top:80px; }
-  .mission__collage{ order:2; }
+  .mission__collage{ order:0; }
   .dest-grid{ grid-template-columns:1fr 1fr; grid-template-rows: repeat(3, 150px); height:auto; }
   .dest-card--tidung{ grid-column: 1/3; grid-row: 1/2; }
   .dest-card--harapan{ grid-row:3/4; grid-column: 1/3; }
